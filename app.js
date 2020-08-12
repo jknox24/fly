@@ -56,7 +56,7 @@ app.post('/inbound', (req, res) => {
       console.log({
         message
       })
-      if (!message[0].job && !message[0].location && !message[0].shift && !message[0].date) {
+      if (!message[0].job && !message[0].location && !message[0].shift && !message[0].Date) {
         let val = body.toLowerCase();
         console.log(body)
         if (val.includes('rn')) {
@@ -104,7 +104,7 @@ app.post('/inbound', (req, res) => {
             console.log('message send ' + m.body)
           })
         }
-      } else if (!message[0].location && !message[0].shift && !message[0].date) {
+      } else if (!message[0].location && !message[0].shift && !message[0].Date) {
         Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             location: body
@@ -123,7 +123,7 @@ app.post('/inbound', (req, res) => {
 
           })
         })
-      } else if (!message[0].shift && !message[0].date) {
+      } else if (!message[0].shift && !message[0].Date) {
         console.log('this message', message)
         let val = body.toLowerCase();
         if (val.includes('days') || val.includes('nights') || val.includes('evenings') || val.includes('flexible')) {
@@ -153,10 +153,10 @@ app.post('/inbound', (req, res) => {
             console.log('message send ' + m.body)
           })
         }
-      } else if (!message[0].date) {
+      } else if (!message[0].Date) {
         Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
-            date: body
+            Date: body
           }
         }, {
           new: true,
@@ -184,7 +184,7 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'To contact us send mail at hello@nursefly.com or for more information https://nursefly.com'
+            body: 'To contact us send an mail at hello@nursefly.com or for more information go to https://nursefly.com'
 
           }).then((m) => {
 
