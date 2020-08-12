@@ -17,7 +17,6 @@ mongoose.connect('mongodb+srv://jordan:Quality1st@cluster0.bmgjn.mongodb.net/<db
 let MessageSchema = new mongoose.Schema({
   phoneNumber: String,
   job: String,
-  userName: String,
   location: String,
   shift: String,
   Date: String,
@@ -57,7 +56,7 @@ app.post('/inbound', (req, res) => {
       console.log({
         message
       })
-      if (!message[0].job && !message[0].location && !message[0].userName && !message[0].shift && !message[0].date) {
+      if (!message[0].job && !message[0].location && !message[0].shift && !message[0].date) {
         let val = body.toLowerCase();
         console.log(body)
         if (val.includes('rn')) {
@@ -105,7 +104,7 @@ app.post('/inbound', (req, res) => {
             console.log('message send ' + m.body)
           })
         }
-      } else if (!message[0].location && !message[0].shift && !message[0].userName && !message[0].date) {
+      } else if (!message[0].location && !message[0].shift && !message[0].date) {
         Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             location: body
@@ -124,10 +123,10 @@ app.post('/inbound', (req, res) => {
 
           })
         })
-
-      } else if (!message[0].shift && !message[0].userName && !message[0].date) {
+      } else if (!message[0].shift && !message[0].date) {
+        console.log('this message', message)
         let val = body.toLowerCase();
-        if (val.includes('Days') || val.includes('Nights') || val.includes('Evenings') || val.includes('Flexible')) {
+        if (val.includes('days') || val.includes('nights') || val.includes('evenings') || val.includes('flexible')) {
           Message.findByIdAndUpdate(message[0]._id, {
             "$set": {
               shift: body
@@ -148,13 +147,13 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'Please enter Days, Nights, Evenings, or Flexible'
+            body: 'Please enter Days, Nights, Evenings, or Flexible.'
 
           }).then((m) => {
             console.log('message send ' + m.body)
           })
         }
-      } else if (!message[0].date && !message[0].userName) {
+      } else if (!message[0].date) {
         Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             date: body
@@ -166,38 +165,18 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'Thank you. One last question, what is your name?'
-
-          }).then((m) => {
-            console.log('message send ' + m.body)
-
-          })
-        })
-      } else if (!message[0].userName) {
-        Message.findByIdAndUpdate(message[0]._id, {
-          "$set": {
-            userName: body
-          }
-        }, {
-          new: true,
-          upsert: true
-        }, () => {
-          client.messages.create({
-            to: from,
-            from: to,
-            body: 'Thank you. Enter code NURSEFLY to start finding jobs'
+            body: 'We are all set to go. Please enter code NURSEFLY to start finding jobs'
           }).then((m) => {
             console.log('message send ' + m.body)
           })
         })
-
       } else {
         let val = body.toLowerCase()
-        if (val.includes('NURSEFLY')) {
+        if (val.includes('nursefly')) {
           client.messages.create({
             to: from,
             from: to,
-            body: 'Here is your link ' + message[0].userName + ':your order Id: ' + message[0]._id + ' and you have ordered ' + message[0].numberofpizza + ' ' + message[0].sizeofpizza + ' ' + message[0].vegpizza + ' ' + message[0].typeofpizza + ' will be deliver at address  : ' + message[0].address + ' with in 30 min Thank You for using our service ',
+            body: 'Here is your link',
           }).then((m) => {
             console.log('message send ' + m.body)
           })
