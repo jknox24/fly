@@ -49,18 +49,20 @@ app.post('/inbound', (req, res) => {
   // console.log(from)
   // console.log(to)
   // console.log(body)
-  Message.find({phoneNumber: req.body.From}, (error, message)=>{
-    console.log('hi there')
-    if (!Message.length) 
-    {
-      console.log({Message})
-      if (!Message[0].job && !Message[0].location && !Message[0].userName && !Message[0].shift && !Message[0].date) {
+  Message.find({
+    phoneNumber: req.body.From
+  }, (error, message) => {
+    console.log(body.length, 'hi')
+    if (message.length !== 0) {
+      console.log({
+        message
+      })
+      if (!message[0].job && !message[0].location && !message[0].userName && !message[0].shift && !message[0].date) {
         let val = body.toLowerCase();
         console.log(body)
-        console.log({val})
         if (val.includes('rn')) {
           console.log('yo')
-          message.findByIdAndUpdate(message[0]._id, {
+          Message.findByIdAndUpdate(message[0]._id, {
             "$set": {
               job: 'RN'
             }
@@ -77,7 +79,7 @@ app.post('/inbound', (req, res) => {
             })
           })
         } else if (val.includes('therapy') || val.includes('social') || val.includes('allied') || val.includes('pharmacy')) {
-          message.findByIdAndUpdate(message[0]._id, {
+          Message.findByIdAndUpdate(message[0]._id, {
             "$set": {
               job: body
             }
@@ -104,7 +106,7 @@ app.post('/inbound', (req, res) => {
           })
         }
       } else if (!message[0].location && !message[0].shift && !message[0].userName && !message[0].date) {
-        message.findByIdAndUpdate(message[0]._id, {
+        Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             location: body
           }
@@ -124,9 +126,9 @@ app.post('/inbound', (req, res) => {
         })
 
       } else if (!message[0].shift && !message[0].userName && !message[0].date) {
-        let val = body.toLowerCase()
+        let val = body.toLowerCase();
         if (val.includes('Days') || val.includes('Nights') || val.includes('Evenings') || val.includes('Flexible')) {
-          message.findByIdAndUpdate(message[0]._id, {
+          Message.findByIdAndUpdate(message[0]._id, {
             "$set": {
               shift: body
             }
@@ -153,7 +155,7 @@ app.post('/inbound', (req, res) => {
           })
         }
       } else if (!message[0].date && !message[0].userName) {
-        message.findByIdAndUpdate(message[0]._id, {
+        Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             date: body
           }
@@ -172,7 +174,7 @@ app.post('/inbound', (req, res) => {
           })
         })
       } else if (!message[0].userName) {
-        message.findByIdAndUpdate(message[0]._id, {
+        Message.findByIdAndUpdate(message[0]._id, {
           "$set": {
             userName: body
           }
