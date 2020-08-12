@@ -11,12 +11,16 @@ const app = express();
 const twilio = require('twilio');
 const client = new twilio(process.env.accountSid, process.env.authToken);
 
-mongoose.connect('mongodb+srv://jordan:Quality1st@cluster0.bmgjn.mongodb.net/<dbname>?retryWrites=true&w=majority', {
+// Establishes connection to DB
+mongoose.connect('mongodb+srv://jordan:'+process.env.password+'@cluster0.bmgjn.mongodb.net/<dbname>?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
   console.log('db connected');
 })
+
+// Creating a new DB Schema. We want to 
+// persist and capture a users search preferences
 let MessageSchema = new mongoose.Schema({
   phoneNumber: String,
   job: String,
@@ -25,7 +29,7 @@ let MessageSchema = new mongoose.Schema({
   Date: String,
 })
 
-// Name of the model is 'Message' value is MessageSchema
+// Name of the model is 'Message'. 
 let Message = mongoose.model('Message', MessageSchema);
 
 app.use(bodyParser.urlencoded({
@@ -36,29 +40,25 @@ app.get('/', (req, res) => {
   res.end();
 });
 
-/**
- *  Text NURSE to trigger first message from bot [x]
- *  Send Message to user if message is not NURSE [X]
- *  Ask user what about their discipline [x]
- *  Send message to user if they don't respond with correct discipline [x]
- *  Save response to the database [x]
- *  Ask user about their location preference []
- */
+// POST /inbound gets hit whenever a user
+// texts twilio's number. We're grabbing the 
+// users message and phone number from the body
 app.post('/inbound', (req, res) => {
   let from = req.body.From
   let to = req.body.To
   let body = req.body.Body
-  // console.log(from)
-  // console.log(to)
-  // console.log(body)
+ 
   Message.find({
+    /**
+     * If any of the given database fields don't
+     * have a value, and if the message includes 'rn',
+     * update the job field in the database.
+     */
     phoneNumber: req.body.From
   }, (error, message) => {
     console.log(body.length, 'hi')
     if (message.length !== 0) {
-      console.log({
-        message
-      })
+    
       if (!message[0].job && !message[0].location && !message[0].shift && !message[0].Date) {
         let val = body.toLowerCase();
         console.log(body)
@@ -72,6 +72,10 @@ app.post('/inbound', (req, res) => {
             new: true,
             upsert: true
           }, () => {
+
+            /**If the update is successful, send the next 
+             * message in the queue. 
+             */
             client.messages.create({
               to: `${from}`,
               from: `${to}`,
@@ -80,6 +84,11 @@ app.post('/inbound', (req, res) => {
               console.log('message send ' + m.body)
             })
           })
+          /** 
+           * If the users message includes therapy, social, allied, or pharmacy,  
+           * update the job field in the database. 
+           * 
+           */
         } else if (val.includes('therapy') || val.includes('social') || val.includes('allied') || val.includes('pharmacy')) {
           Message.findByIdAndUpdate(message[0]._id, {
             "$set": {
@@ -98,6 +107,10 @@ app.post('/inbound', (req, res) => {
             })
           })
         } else {
+
+          /** If the user enters otherwise, send the following 
+           * message. 
+           */
           client.messages.create({
             to: from,
             from: to,
@@ -126,7 +139,7 @@ app.post('/inbound', (req, res) => {
           })
         })
       } else if (!message[0].shift && !message[0].Date) {
-        console.log('this message', message)
+       
         let val = body.toLowerCase();
         if (val.includes('days') || val.includes('nights') || val.includes('evenings') || val.includes('flexible')) {
           Message.findByIdAndUpdate(message[0]._id, {
@@ -178,7 +191,7 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'https://www.nursefly.com/browse-jobs/?refinementList%5BnurseflyDiscipline%5D%5B0%5D='+message[0].jobs+'&refinementList%5Blocation%5D%5B0%5D='+message[0].location+'&refinementList%5BshiftFilter%5D%5B0%5D='+message[0].shift+'&refinementList%5BstartMonth%5D%5B0%5D='+message[0].Date+'&page=1&configure%5BhitsPerPage%5D=25&configure%5BfacetingAfterDistinct%5D=true&configure%5Bfilters%5D=sites%3Anursefly',
+            body: 'Here is your link:'+ 'https://www.nursefly.com/browse-jobs/?refinementList%5BnurseflyDiscipline%5D%5B0%5D='+message[0].jobs+'&refinementList%5Blocation%5D%5B0%5D='+message[0].location+'&refinementList%5BshiftFilter%5D%5B0%5D='+message[0].shift+'&refinementList%5BstartMonth%5D%5B0%5D='+message[0].Date+'&page=1&configure%5BhitsPerPage%5D=25&configure%5BfacetingAfterDistinct%5D=true&configure%5Bfilters%5D=sites%3Anursefly',
           }).then((m) => {
             console.log('message send ' + m.body)
           })
@@ -195,6 +208,8 @@ app.post('/inbound', (req, res) => {
         }
       }
     } else {
+      // If new user types NURSE && number is
+      // not in DB, send message
       if (body === 'NURSE') {
         let newMessage = new Message();
         newMessage.phoneNumber = from
@@ -208,6 +223,8 @@ app.post('/inbound', (req, res) => {
           })
         })
       } else {
+        // If new user types does not type NURSE && 
+        // not in DB, send message
         client.messages.create({
           to: from,
           from: to,
