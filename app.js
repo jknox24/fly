@@ -191,7 +191,7 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'Here is your link:'+ 'https://www.nursefly.com/browse-jobs/?refinementList%5BnurseflyDiscipline%5D%5B0%5D='+message[0].jobs+'&refinementList%5Blocation%5D%5B0%5D='+message[0].location+'&refinementList%5BshiftFilter%5D%5B0%5D='+message[0].shift+'&refinementList%5BstartMonth%5D%5B0%5D='+message[0].Date+'&page=1&configure%5BhitsPerPage%5D=25&configure%5BfacetingAfterDistinct%5D=true&configure%5Bfilters%5D=sites%3Anursefly',
+            body: 'We found the best healthcare jobs for you here 😃:'+ 'https://www.nursefly.com/browse-jobs/?refinementList%5BnurseflyDiscipline%5D%5B0%5D='+message[0].jobs+'&refinementList%5Blocation%5D%5B0%5D='+message[0].location+'&refinementList%5BshiftFilter%5D%5B0%5D='+message[0].shift+'&refinementList%5BstartMonth%5D%5B0%5D='+message[0].Date+'&page=1&configure%5BhitsPerPage%5D=25&configure%5BfacetingAfterDistinct%5D=true&configure%5Bfilters%5D=sites%3Anursefly',
           }).then((m) => {
             console.log('message send ' + m.body)
           })
