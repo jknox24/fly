@@ -1,12 +1,15 @@
 // modules
 const express = require('express');
+const dotenv = require('dotenv');
+const path = require('path');
+const file_dir = path.join(__dirname, '/config/dev.env')
+dotenv.config({path: file_dir});
+console.log(__dirname);
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
 const twilio = require('twilio');
-const accountSid = 'AC9d243462800bb97d44d7408a59724a6d';
-const authToken = '3032465ed2eca2971aa852908e113573';
-const client = new twilio(accountSid, authToken);
+const client = new twilio(process.env.accountSid, process.env.authToken);
 
 mongoose.connect('mongodb+srv://jordan:Quality1st@cluster0.bmgjn.mongodb.net/<dbname>?retryWrites=true&w=majority', {
   useNewUrlParser: true,
@@ -90,7 +93,6 @@ app.post('/inbound', (req, res) => {
               to: from,
               from: to,
               body: 'Great, what state would you prefer to work in?'
-
             }).then((m) => {
               console.log('message send ' + m.body)
             })
@@ -176,7 +178,7 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'Here is your link',
+            body: 'https://www.nursefly.com/browse-jobs/?refinementList%5BnurseflyDiscipline%5D%5B0%5D='+message[0].jobs+'&refinementList%5Blocation%5D%5B0%5D='+message[0].location+'&refinementList%5BshiftFilter%5D%5B0%5D='+message[0].shift+'&refinementList%5BstartMonth%5D%5B0%5D='+message[0].Date+'&page=1&configure%5BhitsPerPage%5D=25&configure%5BfacetingAfterDistinct%5D=true&configure%5Bfilters%5D=sites%3Anursefly',
           }).then((m) => {
             console.log('message send ' + m.body)
           })
@@ -184,8 +186,8 @@ app.post('/inbound', (req, res) => {
           client.messages.create({
             to: from,
             from: to,
-            body: 'To contact us send an mail at hello@nursefly.com or for more information go to https://nursefly.com'
-
+            body: 'To contact us send an mail at hello@nursefly.com or for more information go to https://nursefly.com' 
+            
           }).then((m) => {
 
             console.log('message send ' + m.body)
@@ -212,7 +214,6 @@ app.post('/inbound', (req, res) => {
           body: 'Type NURSE to start'
         }).then((m) => {
           console.log('message send ' + m.body)
-
         })
 
       }
